@@ -79,11 +79,154 @@ Untuk melakukan full reload:
 
 ## Backend (Express.js)
 
-> Dokumentasi setup backend akan ditambahkan di sini.
+### Prasyarat
+
+- Node.js >= 22.11.0
+- MySQL 8.x
+
+### Step 1: Install dependencies
+
+```sh
+cd backend
+npm install
+```
+
+### Step 2: Setup environment
+
+```sh
+cp .env.example .env
+```
+
+Buka `.env` dan isi nilai berikut:
+
+```env
+PORT=5001
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=<mysql_username>
+DB_PASSWORD=<mysql_password>
+DB_NAME=journify
+DB_POOL_LIMIT=20
+JWT_SECRET=<generate_dengan_perintah_di_bawah>
+JWT_EXPIRES_IN=15m
+CORS_ORIGIN=*
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=10
+```
+
+Generate JWT secret yang aman:
+
+```sh
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+### Step 3: Setup MySQL
+
+Buat database dan user — jalankan di MySQL shell:
+
+```sql
+CREATE DATABASE journify;
+CREATE USER 'journify_user'@'localhost' IDENTIFIED BY 'password_anda';
+GRANT ALL PRIVILEGES ON journify.* TO 'journify_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+Buat tabel:
+
+```sql
+CREATE TABLE users (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  name       VARCHAR(255) NOT NULL,
+  email      VARCHAR(255) NOT NULL UNIQUE,
+  password   VARCHAR(255) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE journals (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  user_id    INT NOT NULL,
+  title      VARCHAR(255) NOT NULL,
+  content    TEXT NOT NULL,
+  date       DATE NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+```
+
+### Step 4: Jalankan server
+
+```sh
+npm run dev
+```
+
+Output yang diharapkan:
+
+```
+🚀 Server berjalan di http://localhost:5001
+📋 Environment: development
+✅ Database connected
+```
+
+### API Endpoints
+
+Base URL: `http://localhost:5001`
+
+**Auth**
+
+| Method | Endpoint | Auth | Deskripsi |
+|--------|----------|------|-----------|
+| POST | `/api/auth/register` | ❌ | Registrasi akun baru |
+| POST | `/api/auth/login` | ❌ | Login, mendapatkan token |
+| POST | `/api/auth/logout` | ✅ | Logout |
+
+**Journals** — semua memerlukan header `Authorization: Bearer <token>`
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/journals` | Ambil semua jurnal milik user |
+| GET | `/api/journals/:id` | Ambil jurnal by ID |
+| POST | `/api/journals` | Buat jurnal baru |
+| PUT | `/api/journals/:id` | Update jurnal |
+| DELETE | `/api/journals/:id` | Hapus jurnal |
+
+**Health Check**
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/health` | Cek status server dan database |
+
+### Konfigurasi BASE_URL untuk Mobile
+
+Sesuaikan BASE_URL di frontend berdasarkan environment pengembangan:
+
+| Environment | BASE_URL |
+|---|---|
+| Android Emulator | `http://10.0.2.2:5001` |
+| iOS Simulator | `http://localhost:5001` |
+| Physical Device | `http://<IP-komputer-anda>:5001` |
+
+### ⚠️ Security — Axios
+
+Terdapat supply chain attack pada axios npm package (31 Maret 2026). Versi `1.14.1` dan `0.30.4` terinfeksi malware RAT. **Gunakan versi `1.14.0` dengan exact pin:**
+
+```sh
+# Dari folder app/
+yarn add axios@1.14.0 --exact
+```
+
+Pastikan `package.json` menampilkan `"axios": "1.14.0"` — tanpa `^` atau `~`.
 
 ---
 
 ## Troubleshooting
 
 - **App**: lihat halaman [Troubleshooting](https://reactnative.dev/docs/troubleshooting) React Native
-- **Backend**: *(akan ditambahkan)*
+- **Backend**:
+
+| Error | Solusi |
+|---|---|
+| `Database connection failed` | Pastikan MySQL berjalan |
+| `Access denied for user` | Periksa `DB_USER` dan `DB_PASSWORD` di `.env` |
+| `Port 5001 already in use` | Ganti `PORT` di `.env` atau hentikan proses yang menggunakan port tersebut |
+| `JWT_SECRET is undefined` | Pastikan file `.env` sudah diisi dan tersimpan |
