@@ -1,10 +1,11 @@
 export type AuthStackParamList = {
-	Login: undefined;
-	Register: undefined;
+  Login: undefined;
+  Register: undefined;
 };
 
 export type MainStackParamList = {
-	Dashboard: undefined;
-	CreateJournal: undefined;
-	JournalDetail: { journalId: string };
+  Dashboard: undefined;
+  CreateJournal: undefined;
+  EditJournal: { journalId: string };
+  JournalDetail: { journalId: string };
 };

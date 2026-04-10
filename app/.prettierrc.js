@@ -3,5 +3,12 @@ module.exports = {
   singleQuote: false,
   trailingComma: "all",
   plugins: ["@ianvs/prettier-plugin-sort-imports"],
-  importOrder: ["^react$", "<THIRD_PARTY_MODULES>", "", "^[./]"],
+  importOrder: [
+    "^react$",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@(features|shared|store|navigation)/(.*)$",
+    "",
+    "^[./]",
+  ],
 };
