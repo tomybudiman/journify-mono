@@ -2,6 +2,8 @@ import axios from "axios";
 
 import { API_BASE_URL } from "@shared/constants/api";
 
+import { tokenService } from "./tokenService";
+
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -11,7 +13,11 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(
-  config => {
+  async config => {
+    const token = await tokenService.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   error => Promise.reject(error),

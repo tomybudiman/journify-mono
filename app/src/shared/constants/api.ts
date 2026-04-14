@@ -1,4 +1,6 @@
-export const API_BASE_URL = "http://10.0.2.2:3000";
+import Config from "react-native-config";
+
+export const API_BASE_URL = Config.API_BASE_URL;
 
 export const API_ENDPOINTS = {
   auth: {
@@ -8,9 +10,9 @@ export const API_ENDPOINTS = {
   },
   journal: {
     getAll: "/journals",
-    getById: (id: string): string => `/journals/${id}`,
+    getById: (id: string) => `/journals/${id}`,
     create: "/journals",
-    update: (id: string): string => `/journals/${id}`,
-    delete: (id: string): string => `/journals/${id}`,
+    update: (id: string) => `/journals/${id}`,
+    delete: (id: string) => `/journals/${id}`,
   },
 };
