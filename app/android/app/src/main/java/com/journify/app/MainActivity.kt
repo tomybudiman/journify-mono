@@ -1,4 +1,4 @@
-package com.journify
+package com.journify.app
 
 import android.os.Bundle
 import com.facebook.react.ReactActivity
