@@ -1,5 +1,5 @@
 export interface RegisterPayload {
-  nama: string;
+  name: string;
   email: string;
   password: string;
 }
@@ -9,11 +9,23 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface AuthResponse {
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
   token: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
+}
+
+export interface LogoutResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
 }

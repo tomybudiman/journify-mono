@@ -8,6 +8,7 @@ export interface Journal {
   content: string;
   date: string;
   createdAt: string;
+  updatedAt: string;
   syncStatus: SyncStatus;
 }
 
@@ -44,9 +45,7 @@ const journalSlice = createSlice({
       state,
       action: PayloadAction<{ id: string; syncStatus: SyncStatus }>,
     ) => {
-      const journal = state.journals.find(j => {
-        return j.id === action.payload.id;
-      });
+      const journal = state.journals.find(j => j.id === action.payload.id);
       if (journal) journal.syncStatus = action.payload.syncStatus;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
