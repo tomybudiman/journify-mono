@@ -2,6 +2,7 @@ module.exports = {
   arrowParens: "avoid",
   singleQuote: false,
   trailingComma: "all",
+  bracketSameLine: true,
   plugins: ["@ianvs/prettier-plugin-sort-imports"],
   importOrder: [
     "^\\u0000",
