@@ -8,8 +8,13 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { Controller } from "react-hook-form";
 import { TextInput } from "react-native-paper";
 
+import {
+  AuthFormValues,
+  useAuthForm,
+} from "@features/auth/hooks/useAuthForm.ts";
 import Button from "@shared/components/core/Button.tsx";
 import { colors, textStyles } from "@shared/constants";
 
@@ -58,9 +63,13 @@ const styles = StyleSheet.create({
 export interface AuthFormProps {
   type: "login" | "register";
   onPressToggleMode?: () => void;
+  onSubmit: (data: AuthFormValues) => void;
 }
 
 export default function AuthForm(props: AuthFormProps) {
+  const { control, handleSubmit, isValid, isSubmitting } = useAuthForm(
+    props.type,
+  );
   const getHeroMessageText = (): string => {
     switch (props.type) {
       case "register":
@@ -94,13 +103,55 @@ export default function AuthForm(props: AuthFormProps) {
           />
           <Text style={styles.heroText}>{getHeroMessageText()}</Text>
           {props.type === "register" && (
-            <TextInput style={styles.textInput} label="Name" mode="outlined" />
+            <Controller
+              name="name"
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  label="Name"
+                  value={value}
+                  mode="outlined"
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                  onChangeText={onChange}
+                  style={styles.textInput}
+                />
+              )}
+            />
           )}
-          <TextInput style={styles.textInput} label="Email" mode="outlined" />
-          <TextInput
-            mode="outlined"
-            label="Password"
-            style={styles.textInput}
+          <Controller
+            name="email"
+            control={control}
+            rules={{ required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                value={value}
+                label="Email"
+                mode="outlined"
+                onBlur={onBlur}
+                autoCapitalize="none"
+                onChangeText={onChange}
+                style={styles.textInput}
+                keyboardType="email-address"
+              />
+            )}
+          />
+          <Controller
+            name="password"
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                value={value}
+                mode="outlined"
+                onBlur={onBlur}
+                label="Password"
+                secureTextEntry={true}
+                onChangeText={onChange}
+                style={styles.textInput}
+              />
+            )}
           />
         </View>
         <View style={styles.bottomContainer}>
@@ -116,7 +167,11 @@ export default function AuthForm(props: AuthFormProps) {
               </Text>
             </TouchableOpacity>
           </View>
-          <Button size="large" mode="contained">
+          <Button
+            size="large"
+            mode="contained"
+            disabled={!isValid || isSubmitting}
+            onPress={handleSubmit(props.onSubmit)}>
             Continue
           </Button>
         </View>

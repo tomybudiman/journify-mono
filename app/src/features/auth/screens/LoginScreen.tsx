@@ -32,6 +32,10 @@ export default function LoginScreen(props: LoginScreenProps) {
       <AuthForm
         type="login"
         onPressToggleMode={onClickNavigateToRegisterScreen}
+        onSubmit={data => {
+          // data: { email, password }
+          console.log(data);
+        }}
       />
     </SafeAreaView>
   );
