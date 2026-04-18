@@ -8,9 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { faCircleXmark } from "@fortawesome/pro-solid-svg-icons/faCircleXmark";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { Controller } from "react-hook-form";
+import { Controller, FieldError } from "react-hook-form";
 
 import {
   AuthFormValues,
@@ -44,8 +42,15 @@ const styles = StyleSheet.create({
     color: colors.primary,
     ...textStyles.displayLarge,
   },
+  textInputContainer: {
+    gap: 8,
+  },
   textInput: {
     backgroundColor: colors.surface,
+  },
+  textInputErrorMessage: {
+    color: colors.error,
+    ...textStyles.caption,
   },
   footerMessageContainer: {
     gap: 4,
@@ -72,6 +77,10 @@ export default function AuthForm(props: AuthFormProps) {
   const { control, handleSubmit, isValid, isSubmitting } = useAuthForm(
     props.type,
   );
+
+  /**
+   * @description Returns the hero message text based on the form type.
+   */
   const getHeroMessageText = (): string => {
     switch (props.type) {
       case "register":
@@ -80,6 +89,10 @@ export default function AuthForm(props: AuthFormProps) {
         return "Sign In";
     }
   };
+
+  /**
+   * @description Returns the footer message label and link text based on the form type.
+   */
   const getFooterMessageObject = (): Record<"label" | "link", string> => {
     switch (props.type) {
       case "login":
@@ -94,6 +107,27 @@ export default function AuthForm(props: AuthFormProps) {
         };
     }
   };
+
+  /**
+   * Resolves the error message with the following priority:
+   * 1. Custom message — if provided in the field's validation rules
+   * 2. Generic message — mapped from the error type
+   * 3. Fallback — "Invalid value"
+   */
+  const resolveErrorMessage = (error: FieldError): string => {
+    if (error.message) {
+      return error.message;
+    }
+    switch (error.type) {
+      case "required":
+        return "This field is required.";
+      case "pattern":
+        return "Invalid format.";
+      default:
+        return "Invalid value.";
+    }
+  };
+
   // Render
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -109,17 +143,26 @@ export default function AuthForm(props: AuthFormProps) {
               name="name"
               control={control}
               rules={{ required: true }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label="Name"
-                  value={value}
-                  mode="outlined"
-                  onBlur={onBlur}
-                  allowClear={true}
-                  autoCapitalize="words"
-                  onChangeText={onChange}
-                  style={styles.textInput}
-                />
+              render={({ field: { onChange, onBlur, value }, fieldState }) => (
+                <View style={styles.textInputContainer}>
+                  <TextInput
+                    label="Name"
+                    value={value}
+                    mode="outlined"
+                    onBlur={onBlur}
+                    allowClear={true}
+                    autoCapitalize="words"
+                    onChangeText={onChange}
+                    style={styles.textInput}
+                    error={!!fieldState.error}
+                  />
+                  {fieldState.error && (
+                    <Text style={styles.textInputErrorMessage}>
+                      {fieldState.error &&
+                        resolveErrorMessage(fieldState.error)}
+                    </Text>
+                  )}
+                </View>
               )}
             />
           )}
@@ -127,35 +170,51 @@ export default function AuthForm(props: AuthFormProps) {
             name="email"
             control={control}
             rules={{ required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                value={value}
-                label="Email"
-                mode="outlined"
-                onBlur={onBlur}
-                allowClear={true}
-                autoCapitalize="none"
-                onChangeText={onChange}
-                style={styles.textInput}
-                keyboardType="email-address"
-              />
+            render={({ field: { onChange, onBlur, value }, fieldState }) => (
+              <View style={styles.textInputContainer}>
+                <TextInput
+                  value={value}
+                  label="Email"
+                  mode="outlined"
+                  onBlur={onBlur}
+                  allowClear={true}
+                  autoCapitalize="none"
+                  onChangeText={onChange}
+                  style={styles.textInput}
+                  error={!!fieldState.error}
+                  keyboardType="email-address"
+                />
+                {fieldState.error && (
+                  <Text style={styles.textInputErrorMessage}>
+                    {fieldState.error && resolveErrorMessage(fieldState.error)}
+                  </Text>
+                )}
+              </View>
             )}
           />
           <Controller
             name="password"
             control={control}
             rules={{ required: true }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                value={value}
-                mode="outlined"
-                onBlur={onBlur}
-                label="Password"
-                allowClear={true}
-                secureTextEntry={true}
-                onChangeText={onChange}
-                style={styles.textInput}
-              />
+            render={({ field: { onChange, onBlur, value }, fieldState }) => (
+              <View style={styles.textInputContainer}>
+                <TextInput
+                  value={value}
+                  mode="outlined"
+                  onBlur={onBlur}
+                  label="Password"
+                  allowClear={true}
+                  secureTextEntry={true}
+                  onChangeText={onChange}
+                  style={styles.textInput}
+                  error={!!fieldState.error}
+                />
+                {fieldState.error && (
+                  <Text style={styles.textInputErrorMessage}>
+                    {fieldState.error && resolveErrorMessage(fieldState.error)}
+                  </Text>
+                )}
+              </View>
             )}
           />
         </View>

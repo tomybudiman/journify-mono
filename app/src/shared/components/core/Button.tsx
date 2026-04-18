@@ -27,6 +27,7 @@ export default function Button({ size = "large", ...props }: ButtonProps) {
         return { buttonHeight: 48, labelStyle: { ...textStyles.labelLarge } };
     }
   };
+
   // Render
   const { buttonHeight, labelStyle } = resolveSizeStyle();
   return (

@@ -20,6 +20,9 @@ const styles = StyleSheet.create({
 });
 
 export default function RegisterScreen(props: RegisterScreenProps) {
+  /**
+   * @description Navigates to the Login screen and resets the navigation stack
+   */
   const onClickNavigateToLoginScreen = () => {
     props.navigation.reset({
       index: 0,

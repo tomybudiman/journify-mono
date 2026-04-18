@@ -100,7 +100,7 @@ export const textStyles = {
   },
   caption: {
     fontFamily: fontFamily.body.regular,
-    fontSize: fontSize.xs,
-    lineHeight: lineHeight.xs,
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
   },
 } as const;
