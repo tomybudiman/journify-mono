@@ -11,13 +11,13 @@ import {
 import { faCircleXmark } from "@fortawesome/pro-solid-svg-icons/faCircleXmark";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { Controller } from "react-hook-form";
-import { TextInput } from "react-native-paper";
 
 import {
   AuthFormValues,
   useAuthForm,
 } from "@features/auth/hooks/useAuthForm.ts";
 import Button from "@shared/components/core/Button.tsx";
+import TextInput from "@shared/components/core/TextInput.tsx";
 import { colors, textStyles } from "@shared/constants";
 
 const styles = StyleSheet.create({
@@ -115,24 +115,10 @@ export default function AuthForm(props: AuthFormProps) {
                   value={value}
                   mode="outlined"
                   onBlur={onBlur}
+                  allowClear={true}
                   autoCapitalize="words"
                   onChangeText={onChange}
                   style={styles.textInput}
-                  right={
-                    value &&
-                    value.length > 0 && (
-                      <TextInput.Icon
-                        onPress={() => onChange("")}
-                        icon={({ size, color }) => (
-                          <FontAwesomeIcon
-                            size={size}
-                            color={color}
-                            icon={faCircleXmark}
-                          />
-                        )}
-                      />
-                    )
-                  }
                 />
               )}
             />
@@ -147,24 +133,11 @@ export default function AuthForm(props: AuthFormProps) {
                 label="Email"
                 mode="outlined"
                 onBlur={onBlur}
+                allowClear={true}
                 autoCapitalize="none"
                 onChangeText={onChange}
                 style={styles.textInput}
                 keyboardType="email-address"
-                right={
-                  value.length > 0 && (
-                    <TextInput.Icon
-                      onPress={() => onChange("")}
-                      icon={({ size, color }) => (
-                        <FontAwesomeIcon
-                          size={size}
-                          color={color}
-                          icon={faCircleXmark}
-                        />
-                      )}
-                    />
-                  )
-                }
               />
             )}
           />
@@ -178,23 +151,10 @@ export default function AuthForm(props: AuthFormProps) {
                 mode="outlined"
                 onBlur={onBlur}
                 label="Password"
+                allowClear={true}
                 secureTextEntry={true}
                 onChangeText={onChange}
                 style={styles.textInput}
-                right={
-                  value.length > 0 && (
-                    <TextInput.Icon
-                      onPress={() => onChange("")}
-                      icon={({ size, color }) => (
-                        <FontAwesomeIcon
-                          size={size}
-                          color={color}
-                          icon={faCircleXmark}
-                        />
-                      )}
-                    />
-                  )
-                }
               />
             )}
           />

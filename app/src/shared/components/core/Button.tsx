@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleProp, StyleSheet, ViewStyle } from "react-native";
+import type { StyleProp, ViewStyle } from "react-native";
 import {
   Button as ButtonNative,
   ButtonProps as ButtonNativeProps,
@@ -12,37 +12,23 @@ export interface ButtonProps extends Omit<ButtonNativeProps, "contentStyle"> {
   style?: StyleProp<ViewStyle>;
 }
 
-const styles = StyleSheet.create({});
-
 export default function Button({ size = "large", ...props }: ButtonProps) {
-  const getDynamicSizeStyle = () => {
+  /**
+   * Resolves button height and label style based on the size prop.
+   */
+  const resolveSizeStyle = (): { buttonHeight: number; labelStyle: object } => {
     switch (size) {
       case "small":
-        return {
-          buttonHeight: 32,
-          labelStyle: {
-            ...textStyles.labelSmall,
-          },
-        };
+        return { buttonHeight: 32, labelStyle: { ...textStyles.labelSmall } };
       case "medium":
-        return {
-          buttonHeight: 40,
-          labelStyle: {
-            ...textStyles.labelMedium,
-          },
-        };
+        return { buttonHeight: 40, labelStyle: { ...textStyles.labelMedium } };
       case "large":
       default:
-        return {
-          buttonHeight: 48,
-          labelStyle: {
-            ...textStyles.labelLarge,
-          },
-        };
+        return { buttonHeight: 48, labelStyle: { ...textStyles.labelLarge } };
     }
   };
   // Render
-  const { buttonHeight, labelStyle } = getDynamicSizeStyle();
+  const { buttonHeight, labelStyle } = resolveSizeStyle();
   return (
     <ButtonNative
       {...props}
