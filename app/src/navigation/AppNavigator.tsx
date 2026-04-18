@@ -7,7 +7,9 @@ import AuthNavigator from "./AuthNavigator";
 import MainNavigator from "./MainNavigator";
 
 export default function AppNavigator() {
-  const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
+  const isAuthenticated: boolean = useAppSelector(
+    state => state.auth.isAuthenticated,
+  );
   // Render
   return (
     <NavigationContainer>
