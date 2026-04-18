@@ -8,6 +8,8 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { faCircleXmark } from "@fortawesome/pro-solid-svg-icons/faCircleXmark";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { Controller } from "react-hook-form";
 import { TextInput } from "react-native-paper";
 
@@ -116,6 +118,21 @@ export default function AuthForm(props: AuthFormProps) {
                   autoCapitalize="words"
                   onChangeText={onChange}
                   style={styles.textInput}
+                  right={
+                    value &&
+                    value.length > 0 && (
+                      <TextInput.Icon
+                        onPress={() => onChange("")}
+                        icon={({ size, color }) => (
+                          <FontAwesomeIcon
+                            size={size}
+                            color={color}
+                            icon={faCircleXmark}
+                          />
+                        )}
+                      />
+                    )
+                  }
                 />
               )}
             />
@@ -134,6 +151,20 @@ export default function AuthForm(props: AuthFormProps) {
                 onChangeText={onChange}
                 style={styles.textInput}
                 keyboardType="email-address"
+                right={
+                  value.length > 0 && (
+                    <TextInput.Icon
+                      onPress={() => onChange("")}
+                      icon={({ size, color }) => (
+                        <FontAwesomeIcon
+                          size={size}
+                          color={color}
+                          icon={faCircleXmark}
+                        />
+                      )}
+                    />
+                  )
+                }
               />
             )}
           />
@@ -150,6 +181,20 @@ export default function AuthForm(props: AuthFormProps) {
                 secureTextEntry={true}
                 onChangeText={onChange}
                 style={styles.textInput}
+                right={
+                  value.length > 0 && (
+                    <TextInput.Icon
+                      onPress={() => onChange("")}
+                      icon={({ size, color }) => (
+                        <FontAwesomeIcon
+                          size={size}
+                          color={color}
+                          icon={faCircleXmark}
+                        />
+                      )}
+                    />
+                  )
+                }
               />
             )}
           />
