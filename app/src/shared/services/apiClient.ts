@@ -1,6 +1,8 @@
 import axios from "axios";
 
+import { clearCredentials } from "@features/auth/store/authSlice.ts";
 import { API_BASE_URL } from "@shared/constants/api";
+import { store } from "@store";
 
 import { toastService } from "./toastService.ts";
 import { tokenService } from "./tokenService";
@@ -26,12 +28,17 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   response => response,
-  error => {
+  async error => {
     const message: string =
       error?.response?.data?.message ??
       error?.response?.data?.errors?.[0]?.message ??
       "Something went wrong. Please try again.";
     toastService.error(message);
+    if (error?.response?.status === 401) {
+      await tokenService.removeToken();
+      store.dispatch(clearCredentials());
+      return Promise.reject(error);
+    }
     return Promise.reject(error);
   },
 );

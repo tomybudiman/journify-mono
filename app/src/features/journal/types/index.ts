@@ -1,3 +1,7 @@
+import { SectionListData } from "react-native";
+
+import { Journal } from "@features/journal/store/journalSlice.ts";
+
 export interface JournalApiResponse {
   id: number;
   user_id: number;
@@ -27,4 +31,9 @@ export interface CreateJournalPayload {
 export interface UpdateJournalPayload {
   title: string;
   content: string;
+}
+
+export interface MenuSection extends SectionListData<Journal> {
+  id: string;
+  title: string;
 }
