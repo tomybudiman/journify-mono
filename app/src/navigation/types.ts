@@ -6,6 +6,6 @@ export type AuthStackParamList = {
 export type MainStackParamList = {
   Dashboard: undefined;
   CreateJournal: undefined;
-  EditJournal: { journalId: string };
-  JournalDetail: { journalId: string };
+  EditJournal: { journalId: number };
+  JournalDetail: { journalId: number };
 };

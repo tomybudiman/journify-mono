@@ -10,9 +10,9 @@ export const API_ENDPOINTS = {
   },
   journal: {
     getAll: "/journals",
-    getById: (id: string) => `/journals/${id}`,
+    getById: (id: number) => `/journals/${id}`,
     create: "/journals",
-    update: (id: string) => `/journals/${id}`,
-    delete: (id: string) => `/journals/${id}`,
+    update: (id: number) => `/journals/${id}`,
+    delete: (id: number) => `/journals/${id}`,
   },
 };
