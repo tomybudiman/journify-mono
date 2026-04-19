@@ -208,14 +208,23 @@ Sesuaikan BASE_URL di frontend berdasarkan environment pengembangan:
 
 ### ⚠️ Security — Axios
 
-Terdapat supply chain attack pada axios npm package (31 Maret 2026). Versi `1.14.1` dan `0.30.4` terinfeksi malware RAT. **Gunakan versi `1.14.0` dengan exact pin:**
+Terdapat supply chain attack pada axios npm package (31 Maret 2026). Versi `1.14.1` dan `0.30.4` terinfeksi malware RAT oleh aktor negara Korea Utara (Sapphire Sleet/UNC1069).
+
+**Versi aman yang digunakan: `1.15.0`** — dirilis 8 April 2026 via OIDC Trusted Publishing dengan provenance yang dapat diverifikasi, mengandung patch keamanan SSRF dan header injection yang tidak ada di `1.14.0`.
 
 ```sh
 # Dari folder app/
-yarn add axios@1.14.0 --exact
+yarn add axios@1.15.0 --exact
 ```
 
-Pastikan `package.json` menampilkan `"axios": "1.14.0"` — tanpa `^` atau `~`.
+Pastikan `package.json` menampilkan `"axios": "1.15.0"` — tanpa `^` atau `~`.
+
+| Versi | Status |
+|---|---|
+| `1.14.0` | ✅ Aman (rilis terakhir sebelum serangan) |
+| `1.14.1` | ❌ Malware RAT |
+| `0.30.4` | ❌ Malware RAT |
+| `1.15.0` | ✅ Aman — **versi yang digunakan** |
 
 ---
 
