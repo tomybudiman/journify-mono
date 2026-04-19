@@ -2,6 +2,7 @@ import axios from "axios";
 
 import { API_BASE_URL } from "@shared/constants/api";
 
+import { toastService } from "./toastService.ts";
 import { tokenService } from "./tokenService";
 
 const apiClient = axios.create({
@@ -26,6 +27,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   response => response,
   error => {
+    const message: string =
+      error?.response?.data?.message ??
+      error?.response?.data?.errors?.[0]?.message ??
+      "Something went wrong. Please try again.";
+    toastService.error(message);
     return Promise.reject(error);
   },
 );
