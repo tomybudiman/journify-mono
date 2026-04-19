@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function DashboardScreen() {
+export default function DashboardScreen(): React.JSX.Element {
   const insets: EdgeInsets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -100,6 +100,17 @@ export default function DashboardScreen() {
     bottomSheetRef.current?.close();
     navigation.navigate("CreateJournal");
   }, [navigation]);
+
+  /**
+   * @description Closes the bottom sheet and navigates to the journal detail screen with the specified journal ID.
+   */
+  const handleNavigateToJournalDetail = useCallback(
+    (journalId: number) => {
+      bottomSheetRef.current?.close();
+      navigation.navigate("JournalDetail", { journalId: journalId });
+    },
+    [navigation],
+  );
 
   /**
    * @description Groups journals by month and year, returning section list data with formatted headers.
@@ -157,13 +168,11 @@ export default function DashboardScreen() {
       return (
         <SectionListItem
           journal={item}
-          onPress={() =>
-            navigation.navigate("JournalDetail", { journalId: item.id })
-          }
+          onPress={() => handleNavigateToJournalDetail(item.id)}
         />
       );
     },
-    [navigation],
+    [handleNavigateToJournalDetail],
   );
 
   /**
