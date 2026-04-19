@@ -1,6 +1,7 @@
 import "react-native-gesture-handler";
 
 import React from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import {
   SafeAreaProvider,
@@ -33,7 +34,9 @@ export default function App() {
     <SafeAreaProvider>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <AppContent />
+          <GestureHandlerRootView>
+            <AppContent />
+          </GestureHandlerRootView>
         </PersistGate>
       </Provider>
     </SafeAreaProvider>

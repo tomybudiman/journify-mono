@@ -224,7 +224,7 @@ export default function AuthForm(props: AuthFormProps) {
               {getFooterMessageObject().label}
             </Text>
             <TouchableOpacity
-              activeOpacity={0.5}
+              activeOpacity={0.75}
               onPress={props.onPressToggleMode}>
               <Text style={styles.footerMessageLinkText}>
                 {getFooterMessageObject().link}

@@ -12,7 +12,7 @@ const Stack = createStackNavigator<MainStackParamList>();
 
 export default function MainNavigator() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="EditJournal" component={EditJournalScreen} />
       <Stack.Screen name="CreateJournal" component={CreateJournalScreen} />
