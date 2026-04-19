@@ -1,7 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { authService } from "@features/auth/services/authService.ts";
-import { LoginPayload, RegisterPayload } from "@features/auth/types";
+import {
+  LoginPayload,
+  LoginResponse,
+  RegisterPayload,
+} from "@features/auth/types";
 import { tokenService } from "@shared/services/tokenService";
 
 export const registerThunk = createAsyncThunk(
@@ -23,7 +27,7 @@ export const loginThunk = createAsyncThunk(
   "auth/login",
   async (payload: LoginPayload, { rejectWithValue }) => {
     try {
-      const response = await authService.login(payload);
+      const response: LoginResponse = await authService.login(payload);
       await tokenService.saveToken(response.token);
       return response;
     } catch (error: any) {
