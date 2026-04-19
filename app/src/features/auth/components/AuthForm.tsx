@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     gap: 12,
+    paddingBottom: 16,
   },
   appIconImage: {
     top: 16,

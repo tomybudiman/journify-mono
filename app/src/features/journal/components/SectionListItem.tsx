@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   journalContentPreviewText: {
     color: colors.textPrimary,
-    ...textStyles.bodySmall,
+    ...textStyles.bodyMedium,
   },
 });
 

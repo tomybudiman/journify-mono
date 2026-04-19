@@ -14,8 +14,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     color: colors.textPrimary,
     ...textStyles.headlineLarge,
-    lineHeight: 36,
-    fontSize: 36,
+    lineHeight: 32,
+    fontSize: 32,
   },
 });
 

@@ -1,8 +1,9 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { Keyboard, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import JournalForm from "@features/journal/components/JournalForm.tsx";
+import Header from "@shared/components/core/Header.tsx";
 import { colors } from "@shared/constants";
 
 const styles = StyleSheet.create({
@@ -14,8 +15,11 @@ const styles = StyleSheet.create({
 
 export default function EditJournalScreen() {
   return (
-    <SafeAreaView style={styles.container}>
-      <JournalForm />
-    </SafeAreaView>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SafeAreaView style={styles.container}>
+        <Header>Edit Journal</Header>
+        <JournalForm />
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
