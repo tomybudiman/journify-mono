@@ -1,10 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
+  Image,
   RefreshControl,
   SectionList,
   SectionListRenderItemInfo,
   StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 import { faBars } from "@fortawesome/pro-solid-svg-icons/faBars";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -27,7 +30,7 @@ import { fetchJournalsThunk } from "@features/journal/store/journalThunks.ts";
 import { MenuSection } from "@features/journal/types";
 import { MainStackParamList } from "@navigation/types.ts";
 import Button from "@shared/components/core/Button.tsx";
-import { colors } from "@shared/constants";
+import { colors, textStyles } from "@shared/constants";
 import { useAppDispatch } from "@shared/hooks/useAppDispatch.ts";
 import { useAppSelector } from "@shared/hooks/useAppSelector.ts";
 import { toastService } from "@shared/services/toastService";
@@ -37,6 +40,22 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
     backgroundColor: colors.background,
+  },
+  emptyJournalContainer: {
+    flex: 1,
+    gap: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyJournalIcon: {
+    width: 128,
+    height: 128,
+  },
+  emptyJournalText: {
+    maxWidth: "80%",
+    textAlign: "center",
+    color: colors.textPrimary,
+    ...textStyles.bodyLarge,
   },
   bottomSheetView: {
     gap: 8,
@@ -72,6 +91,7 @@ export default function DashboardScreen(): React.JSX.Element {
     }),
     [],
   );
+  const keyExtractor = useCallback((item: Journal) => String(item.id), []);
   const fetchJournals = useCallback(() => {
     dispatch(fetchJournalsThunk());
   }, [dispatch]);
@@ -116,42 +136,32 @@ export default function DashboardScreen(): React.JSX.Element {
    * @description Groups journals by month and year, returning section list data with formatted headers.
    */
   const getSectionListData: MenuSection[] = useMemo(() => {
-    if (journals.length === 0) {
-      const date = new Date();
-      const currentMonthWord: string = date.toLocaleString("default", {
-        month: "long",
-      });
-      return [
-        {
-          id: uuid.v4(),
-          title: `${currentMonthWord} - ${String(date.getFullYear())}`,
-          data: [],
+    if (journals.length > 0) {
+      const grouped = journals.reduce<Record<string, Journal[]>>(
+        (acc, journal) => {
+          const date = new Date(journal.date);
+          const key = `${date.getFullYear()}-${date.getMonth()}`;
+          if (!acc[key]) {
+            acc[key] = [];
+          }
+          acc[key].push(journal);
+          return acc;
         },
-      ];
+        {},
+      );
+      return Object.entries(grouped).map(([key, data]) => {
+        const [year, month] = key.split("-").map(Number);
+        const monthName = new Intl.DateTimeFormat("id-ID", {
+          month: "long",
+        }).format(new Date(year, month));
+        return {
+          id: uuid.v4() as string,
+          title: `${monthName} - ${year}`,
+          data,
+        };
+      });
     }
-    const grouped = journals.reduce<Record<string, Journal[]>>(
-      (acc, journal) => {
-        const date = new Date(journal.date);
-        const key = `${date.getFullYear()}-${date.getMonth()}`;
-        if (!acc[key]) {
-          acc[key] = [];
-        }
-        acc[key].push(journal);
-        return acc;
-      },
-      {},
-    );
-    return Object.entries(grouped).map(([key, data]) => {
-      const [year, month] = key.split("-").map(Number);
-      const monthName = new Intl.DateTimeFormat("id-ID", {
-        month: "long",
-      }).format(new Date(year, month));
-      return {
-        id: uuid.v4() as string,
-        title: `${monthName} - ${year}`,
-        data,
-      };
-    });
+    return [];
   }, [journals]);
 
   /**
@@ -187,19 +197,40 @@ export default function DashboardScreen(): React.JSX.Element {
   }, [isLoading, journals]);
 
   // Render
-  const keyExtractor = useCallback((item: Journal) => String(item.id), []);
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <SectionList
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          sections={getSectionListData}
-          renderSectionHeader={renderSectionHeader}
-          refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={fetchJournals} />
-          }
-        />
+        {getSectionListData.length > 0 ? (
+          <SectionList
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            sections={getSectionListData}
+            renderSectionHeader={renderSectionHeader}
+            refreshControl={
+              <RefreshControl
+                refreshing={isLoading}
+                onRefresh={fetchJournals}
+              />
+            }
+          />
+        ) : (
+          <View style={styles.emptyJournalContainer}>
+            <Image
+              style={styles.emptyJournalIcon}
+              source={require("@shared/assets/images/empty-journal-512.png")}
+            />
+            <Text style={styles.emptyJournalText}>
+              What's on your mind today? Start capturing your thoughts and
+              memories.
+            </Text>
+            <Button
+              size="medium"
+              mode="contained"
+              onPress={handleCreateJournal}>
+              Write Something New
+            </Button>
+          </View>
+        )}
         <TouchableOpacity
           activeOpacity={0.75}
           onPress={() => bottomSheetRef.current?.expand()}

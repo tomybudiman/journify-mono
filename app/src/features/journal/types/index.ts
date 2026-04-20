@@ -37,3 +37,8 @@ export interface MenuSection extends SectionListData<Journal> {
   id: string;
   title: string;
 }
+
+export interface JournalContent {
+  question: string;
+  answer: string;
+}

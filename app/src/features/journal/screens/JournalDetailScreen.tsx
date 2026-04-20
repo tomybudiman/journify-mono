@@ -21,6 +21,7 @@ import {
 
 import { Journal } from "@features/journal/store/journalSlice";
 import { deleteJournalThunk } from "@features/journal/store/journalThunks";
+import { JournalContent } from "@features/journal/types";
 import { MainStackParamList } from "@navigation/types";
 import Button from "@shared/components/core/Button";
 import Header from "@shared/components/core/Header";
@@ -33,9 +34,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  scrollContent: {
-    padding: 24,
-    paddingTop: 8,
+  scrollViewContent: {
+    paddingTop: 16,
+    paddingBottom: 120,
+    paddingHorizontal: 24,
   },
   dateText: {
     marginBottom: 4,
@@ -43,13 +45,22 @@ const styles = StyleSheet.create({
     ...textStyles.bodyMedium,
   },
   titleText: {
-    marginBottom: 16,
     color: colors.textPrimary,
     ...textStyles.headlineLarge,
+    lineHeight: 28,
+    fontSize: 28,
   },
-  contentText: {
+  journalEachQuestionContainer: {
+    gap: 4,
+    marginTop: 16,
+  },
+  journalQuestionText: {
+    fontWeight: "bold",
     color: colors.textPrimary,
-    ...textStyles.bodyLarge,
+    ...textStyles.bodyMedium,
+  },
+  journalAnswerText: {
+    ...textStyles.bodyMedium,
   },
   floatingPrimaryButton: {
     width: 56,
@@ -89,11 +100,16 @@ export default function JournalDetailScreen(): React.JSX.Element {
     [],
   );
   const [confirmVisible, setConfirmVisible] = useState<boolean>(false);
-  const journal: Journal | undefined = useAppSelector(state =>
+  const journal: Journal = useAppSelector(state =>
     state.journal.journals.find(j => j.id === route.params.journalId),
-  );
-
-  console.log("journal:", journal);
+  ) as Journal;
+  const formattedDate: string = new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(journal.date));
+  const parsedJournalContent: JournalContent[] = JSON.parse(journal.content);
 
   /**
    * @description Shows the delete confirmation dialog.
@@ -125,39 +141,23 @@ export default function JournalDetailScreen(): React.JSX.Element {
   }, [dispatch, journal, navigation]);
 
   // Render
-  if (!journal) {
-    return (
-      <View style={styles.container}>
-        <Header>Journal</Header>
-      </View>
-    );
-  }
-
-  const formattedDate: string = new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(journal.date));
-
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <Header>Journal</Header>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}>
+        <Header />
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <Text style={styles.dateText}>{formattedDate}</Text>
           <Text style={styles.titleText}>{journal.title}</Text>
-          <Text style={styles.contentText}>{journal.content}</Text>
-
-          {/*  <Button*/}
-          {/*    size="medium"*/}
-          {/*    mode="outlined"*/}
-          {/*    variant="error"*/}
-          {/*    onPress={handlePressDelete}>*/}
-          {/*    Delete Journal*/}
-          {/*  </Button>*/}
+          {parsedJournalContent.map(eachSection => (
+            <View
+              key={eachSection.question}
+              style={styles.journalEachQuestionContainer}>
+              <Text style={styles.journalQuestionText}>
+                {eachSection.question}
+              </Text>
+              <Text style={styles.journalAnswerText}>{eachSection.answer}</Text>
+            </View>
+          ))}
         </ScrollView>
         <TouchableOpacity
           activeOpacity={0.75}

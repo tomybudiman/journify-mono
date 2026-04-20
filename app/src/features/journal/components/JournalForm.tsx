@@ -1,12 +1,24 @@
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useState } from "react";
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import DateTimePicker, {
+  DateTimePickerAndroid,
+} from "@react-native-community/datetimepicker";
 import { Controller, FieldError, useForm } from "react-hook-form";
 
+import { CreateJournalPayload } from "@features/journal/types";
 import Button from "@shared/components/core/Button.tsx";
 import TextInput from "@shared/components/core/TextInput.tsx";
 import { colors, textStyles } from "@shared/constants";
 
 export interface JournalFormValues {
+  date: string;
   title: string;
   answer1: string;
   answer2: string;
@@ -14,7 +26,8 @@ export interface JournalFormValues {
 }
 
 export interface JournalFormProps {
-  onSubmit: (data: JournalFormValues) => void;
+  initialValues?: CreateJournalPayload;
+  onSubmit: (data: CreateJournalPayload) => void;
 }
 
 const journalQuestions: string[] = [
@@ -32,9 +45,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+    flexDirection: "column",
+  },
   scrollViewContentContainer: {
     gap: 16,
-    paddingTop: 16,
+    paddingVertical: 16,
     paddingHorizontal: 24,
   },
   titleTextInput: {
@@ -57,15 +74,57 @@ const styles = StyleSheet.create({
     ...textStyles.caption,
   },
   footerContainer: {
-    flex: 1,
     paddingBottom: 16,
     paddingHorizontal: 24,
     justifyContent: "flex-end",
   },
+  dateTouchable: {
+    height: 48,
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  dateTouchableError: {
+    borderColor: colors.error,
+  },
+  datePlaceholderText: {
+    color: colors.textSecondary,
+    ...textStyles.bodyMedium,
+  },
+  dateValueText: {
+    color: colors.textPrimary,
+    ...textStyles.bodyMedium,
+  },
 });
+
+/**
+ * @description Parses a CreateJournalPayload into JournalFormValues for form prefill.
+ * Content is expected to be a JSON stringified array of { question, answer } objects.
+ */
+const parseInitialValues = (
+  initial: CreateJournalPayload,
+): Partial<JournalFormValues> => {
+  let parsed: { question: string; answer: string }[];
+  try {
+    parsed = JSON.parse(initial.content);
+  } catch {
+    parsed = [];
+  }
+  return {
+    date: initial.date,
+    title: initial.title,
+    answer1: parsed[0]?.answer ?? "",
+    answer2: parsed[1]?.answer ?? "",
+    answer3: parsed[2]?.answer ?? "",
+  };
+};
 
 export default function JournalForm({
   onSubmit,
+  initialValues,
 }: JournalFormProps): React.JSX.Element {
   const {
     control,
@@ -74,13 +133,58 @@ export default function JournalForm({
     formState: { isValid, isSubmitting },
   } = useForm<JournalFormValues>({
     mode: "onChange",
-    defaultValues: {
-      title: "",
-      answer1: "",
-      answer2: "",
-      answer3: "",
-    },
+    defaultValues: initialValues
+      ? parseInitialValues(initialValues)
+      : {
+          date: "",
+          title: "",
+          answer1: "",
+          answer2: "",
+          answer3: "",
+        },
   });
+  const [showIOSPicker, setShowIOSPicker] = useState<boolean>(false);
+
+  /**
+   * @description Opens the date picker. Uses imperative API on Android, state-driven component on iOS.
+   */
+  const handleOpenDatePicker = useCallback(
+    (onChange: (value: string) => void, currentValue: string) => {
+      const currentDate = currentValue ? new Date(currentValue) : new Date();
+      if (Platform.OS === "android") {
+        DateTimePickerAndroid.open({
+          mode: "date",
+          value: currentDate,
+          onValueChange: (_, selectedDate) => {
+            if (!selectedDate) {
+              return;
+            }
+            onChange(selectedDate.toISOString().split("T")[0]);
+          },
+        });
+      } else {
+        setShowIOSPicker(true);
+      }
+    },
+    [],
+  );
+
+  /**
+   * @description Transforms form values into journal payload format with serialized Q&A content.
+   */
+  const transformFormValues = useCallback(
+    (values: JournalFormValues): CreateJournalPayload => ({
+      date: values.date,
+      title: values.title,
+      content: JSON.stringify(
+        answerFields.map((field, i) => ({
+          question: journalQuestions[i],
+          answer: values[field],
+        })),
+      ),
+    }),
+    [],
+  );
 
   /**
    * Resolves the error message with the following priority:
@@ -117,7 +221,9 @@ export default function JournalForm({
   // Render
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContentContainer}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContentContainer}>
         <Controller
           name="title"
           control={control}
@@ -142,6 +248,56 @@ export default function JournalForm({
             </View>
           )}
         />
+        <Controller
+          name="date"
+          control={control}
+          rules={{ required: true }}
+          render={({ field: { onChange, value }, fieldState }) => (
+            <View style={styles.questionFieldContainer}>
+              <Text style={styles.questionText}>Journal Date:</Text>
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() => handleOpenDatePicker(onChange, value)}
+                style={[
+                  styles.dateTouchable,
+                  !!fieldState.error && styles.dateTouchableError,
+                ]}>
+                <Text
+                  style={
+                    value ? styles.dateValueText : styles.datePlaceholderText
+                  }>
+                  {value
+                    ? new Intl.DateTimeFormat("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }).format(new Date(value))
+                    : "Select date"}
+                </Text>
+              </TouchableOpacity>
+              {fieldState.error && (
+                <Text style={styles.errorMessage}>
+                  {resolveErrorMessage(fieldState.error)}
+                </Text>
+              )}
+              {Platform.OS === "ios" && showIOSPicker && (
+                <DateTimePicker
+                  mode="date"
+                  display="spinner"
+                  value={value ? new Date(value) : new Date()}
+                  onValueChange={(_, selectedDate) => {
+                    setShowIOSPicker(false);
+                    if (!selectedDate) {
+                      return;
+                    }
+                    onChange(selectedDate.toISOString().split("T")[0]);
+                  }}
+                  onDismiss={() => setShowIOSPicker(false)}
+                />
+              )}
+            </View>
+          )}
+        />
         {answerFields.map((fieldName, i) => (
           <Controller
             key={fieldName}
@@ -154,13 +310,16 @@ export default function JournalForm({
                 <TextInput
                   value={value}
                   mode="outlined"
-                  onBlur={onBlur}
                   multiline={true}
                   allowClear={true}
                   scrollEnabled={false}
                   onChangeText={onChange}
                   style={styles.textArea}
                   error={!!fieldState.error}
+                  onBlur={() => {
+                    onChange(value.trim());
+                    onBlur();
+                  }}
                 />
                 {fieldState.error && (
                   <Text style={styles.errorMessage}>
@@ -175,8 +334,10 @@ export default function JournalForm({
       <View style={styles.footerContainer}>
         <Button
           mode="contained"
-          onPress={handleSubmit(onSubmit)}
-          disabled={!isValid || isSubmitting}>
+          disabled={!isValid || isSubmitting}
+          onPress={handleSubmit(values =>
+            onSubmit(transformFormValues(values)),
+          )}>
           Save Journal
         </Button>
       </View>
