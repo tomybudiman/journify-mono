@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
     ...textStyles.bodyMedium,
   },
   journalAnswerText: {
+    color: colors.textPrimary,
     ...textStyles.bodyMedium,
   },
   floatingPrimaryButton: {
@@ -74,10 +75,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.primary,
   },
+  dialog: {
+    backgroundColor: colors.background,
+  },
   dialogActions: {
-    gap: 8,
-    paddingHorizontal: 16,
+    gap: 0,
     paddingBottom: 16,
+    paddingHorizontal: 16,
+  },
+  dialogConfirmationText: {
+    color: colors.textPrimary,
+    ...textStyles.bodyMedium,
   },
   bottomSheetView: {
     gap: 8,
@@ -108,7 +116,7 @@ export default function JournalDetailScreen(): React.JSX.Element {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(journal.date));
+  }).format(new Date(journal?.date));
   const parsedJournalContent: JournalContent[] = JSON.parse(journal.content);
 
   /**
@@ -172,10 +180,13 @@ export default function JournalDetailScreen(): React.JSX.Element {
         </TouchableOpacity>
       </SafeAreaView>
       <Portal>
-        <Dialog visible={confirmVisible} onDismiss={handleCancelDelete}>
+        <Dialog
+          style={styles.dialog}
+          visible={confirmVisible}
+          onDismiss={handleCancelDelete}>
           <Dialog.Title>Delete Journal</Dialog.Title>
           <Dialog.Content>
-            <Text>
+            <Text style={styles.dialogConfirmationText}>
               Are you sure you want to delete this journal? This action cannot
               be undone.
             </Text>
@@ -183,15 +194,15 @@ export default function JournalDetailScreen(): React.JSX.Element {
           <Dialog.Actions style={styles.dialogActions}>
             <Button
               size="medium"
-              mode="outlined"
+              mode="contained"
               variant="primary"
               onPress={handleCancelDelete}>
               Cancel
             </Button>
             <Button
               size="medium"
-              mode="contained"
               variant="error"
+              mode="outlined"
               onPress={handleConfirmDelete}>
               Delete
             </Button>
@@ -206,7 +217,14 @@ export default function JournalDetailScreen(): React.JSX.Element {
         animationConfigs={animationConfigs}>
         <BottomSheetView
           style={[{ paddingBottom: insets.bottom }, styles.bottomSheetView]}>
-          <Button size="medium" mode="contained" variant="primary">
+          <Button
+            size="medium"
+            mode="contained"
+            variant="primary"
+            onPress={() => {
+              bottomSheetRef.current?.close();
+              navigation.navigate("EditJournal", { journalId: journal.id });
+            }}>
             Edit Journal
           </Button>
           <Button
