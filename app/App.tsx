@@ -1,6 +1,7 @@
 import "react-native-gesture-handler";
 
 import React from "react";
+import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import {
@@ -30,11 +31,13 @@ function AppContent() {
 }
 
 export default function App() {
+  // Render
   return (
     <SafeAreaProvider>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <GestureHandlerRootView>
+            <StatusBar barStyle="dark-content" />
             <AppContent />
           </GestureHandlerRootView>
         </PersistGate>
