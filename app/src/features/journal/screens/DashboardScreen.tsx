@@ -191,10 +191,6 @@ export default function DashboardScreen(): React.JSX.Element {
   useEffect(() => {
     fetchJournals();
   }, [fetchJournals]);
-  useEffect(() => {
-    console.log("isLoading:", isLoading);
-    console.log("journals:", journals);
-  }, [isLoading, journals]);
 
   // Render
   return (

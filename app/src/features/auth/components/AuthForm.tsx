@@ -71,13 +71,23 @@ const styles = StyleSheet.create({
 export interface AuthFormProps {
   type: "login" | "register";
   onPressToggleMode?: () => void;
-  onSubmit: (data: AuthFormValues) => void;
+  onSubmit: (data: AuthFormValues) => Promise<boolean>;
 }
 
 export default function AuthForm(props: AuthFormProps) {
-  const { control, handleSubmit, isValid, isSubmitting } = useAuthForm(
+  const { control, handleSubmit, reset, isValid, isSubmitting } = useAuthForm(
     props.type,
   );
+
+  /**
+   * @description Calls onSubmit and resets the form if successful.
+   */
+  const handleFormSubmit = async (data: AuthFormValues) => {
+    const success = await props.onSubmit(data);
+    if (success) {
+      reset();
+    }
+  };
 
   /**
    * @description Returns the hero message text based on the form type.
@@ -236,7 +246,7 @@ export default function AuthForm(props: AuthFormProps) {
             size="large"
             mode="contained"
             disabled={!isValid || isSubmitting}
-            onPress={handleSubmit(props.onSubmit)}>
+            onPress={handleSubmit(handleFormSubmit)}>
             Continue
           </Button>
         </View>

@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
 });
 
 export default function SectionListItem(props: SectionListItemProps) {
-  console.log(props.journal);
   // Render
   return (
     <TouchableOpacity

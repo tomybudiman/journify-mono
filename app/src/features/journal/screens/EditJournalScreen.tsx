@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import JournalForm from "@features/journal/components/JournalForm.tsx";
 import { Journal } from "@features/journal/store/journalSlice";
 import { updateJournalThunk } from "@features/journal/store/journalThunks";
-import { CreateJournalPayload } from "@features/journal/types";
+import { CreateJournalPayload, JournalContent } from "@features/journal/types";
 import { MainStackParamList } from "@navigation/types.ts";
 import Header from "@shared/components/core/Header.tsx";
 import { colors } from "@shared/constants";
@@ -35,20 +35,43 @@ export default function EditJournalScreen(
     state.journal.journals.find(j => j.id === route.params.journalId),
   ) as Journal;
   const initialValues: CreateJournalPayload = {
-    date: journal.date,
+    date: journal.date.split("T")[0],
     title: journal.title,
     content: journal.content,
   };
 
   /**
-   * @description Dispatches the update journal thunk and resets navigation to JournalDetail on success
+   * @description Dispatches the update journal thunk and resets navigation to JournalDetail on success.
+   * If no changes are detected, shows an info toast and navigates back without dispatching.
    */
   const handleOnSubmitJournalForm = useCallback(
     async (data: CreateJournalPayload) => {
+      const normalizedJournalDate: string = journal.date.split("T")[0];
+      const parsedDataContent: JournalContent[] = JSON.parse(data.content);
+      const parsedJournalContent: JournalContent[] = JSON.parse(
+        journal.content,
+      );
+      const contentChanged = parsedDataContent.some(
+        (item, i) => item.answer !== parsedJournalContent[i]?.answer,
+      );
+      const hasChanges: boolean =
+        data.date !== normalizedJournalDate ||
+        data.title !== journal.title ||
+        contentChanged;
+      if (!hasChanges) {
+        toastService.info("No changes detected");
+        props.navigation.reset({
+          index: 1,
+          routes: [
+            { name: "Dashboard" },
+            { name: "JournalDetail", params: { journalId: journal.id } },
+          ],
+        });
+        return;
+      }
       const result = await dispatch(
         updateJournalThunk({ id: journal.id, payload: data }),
       );
-
       if (updateJournalThunk.fulfilled.match(result)) {
         toastService.success("Journal updated successfully");
         props.navigation.reset({
@@ -64,7 +87,7 @@ export default function EditJournalScreen(
         );
       }
     },
-    [dispatch, journal.id, props.navigation],
+    [dispatch, journal, props.navigation],
   );
 
   // Render

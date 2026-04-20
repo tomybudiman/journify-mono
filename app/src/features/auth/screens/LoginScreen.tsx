@@ -38,8 +38,11 @@ export default function LoginScreen(props: LoginScreenProps) {
   /**
    * @description Dispatches the login thunk with the submitted form values
    */
-  const onSubmit = async (data: AuthFormValues) => {
-    await dispatch(loginThunk({ email: data.email, password: data.password }));
+  const onSubmit = async (data: AuthFormValues): Promise<boolean> => {
+    const result = await dispatch(
+      loginThunk({ email: data.email, password: data.password }),
+    );
+    return loginThunk.fulfilled.match(result);
   };
 
   // Render

@@ -8,6 +8,7 @@ export interface AuthFormValues {
 
 export function useAuthForm(type: "login" | "register") {
   const {
+    reset,
     control,
     handleSubmit,
     formState: { isValid, isSubmitting },
@@ -19,5 +20,6 @@ export function useAuthForm(type: "login" | "register") {
       password: "",
     },
   });
-  return { control, handleSubmit, isValid, isSubmitting };
+
+  return { control, handleSubmit, reset, isValid, isSubmitting };
 }

@@ -28,6 +28,7 @@ import Header from "@shared/components/core/Header";
 import { colors, textStyles } from "@shared/constants";
 import { useAppDispatch } from "@shared/hooks/useAppDispatch";
 import { useAppSelector } from "@shared/hooks/useAppSelector";
+import { toastService } from "@shared/services/toastService.ts";
 
 const styles = StyleSheet.create({
   container: {
@@ -144,7 +145,12 @@ export default function JournalDetailScreen(): React.JSX.Element {
     setConfirmVisible(false);
     const result = await dispatch(deleteJournalThunk(journal.id));
     if (deleteJournalThunk.fulfilled.match(result)) {
+      toastService.success("Journal deleted successfully");
       navigation.goBack();
+    } else {
+      toastService.error(
+        (result.payload as string) ?? "Failed to delete journal",
+      );
     }
   }, [dispatch, journal, navigation]);
 

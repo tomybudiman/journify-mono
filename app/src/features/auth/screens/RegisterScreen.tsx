@@ -9,6 +9,7 @@ import { registerThunk } from "@features/auth/store/authThunks";
 import { AuthStackParamList } from "@navigation/types.ts";
 import { colors } from "@shared/constants";
 import { useAppDispatch } from "@shared/hooks/useAppDispatch.ts";
+import { toastService } from "@shared/services/toastService.ts";
 
 export interface RegisterScreenProps {
   navigation: StackNavigationProp<AuthStackParamList, "Register">;
@@ -36,16 +37,24 @@ export default function RegisterScreen(props: RegisterScreenProps) {
   };
 
   /**
-   * @description Dispatches the register thunk with the submitted form values
+   * @description Dispatches the register thunk, shows toast, and navigates to Login on success
    */
-  const onSubmit = async (data: AuthFormValues) => {
-    await dispatch(
+  const onSubmit = async (data: AuthFormValues): Promise<boolean> => {
+    const result = await dispatch(
       registerThunk({
         name: data.name as string,
         email: data.email,
         password: data.password,
       }),
     );
+    if (registerThunk.fulfilled.match(result)) {
+      toastService.success("Registration successful");
+      onClickNavigateToLoginScreen();
+      return true;
+    } else {
+      toastService.error((result.payload as string) ?? "Registration failed");
+      return false;
+    }
   };
 
   // Render
